@@ -1,5 +1,7 @@
 //index.js
-var wxbarcode = require('../../utils/index.js');
+// var wxbarcode = require('../../utils/index.js');
+
+import wxbarcode from '../../utils/qrcode';
 
 Page({
 
@@ -8,7 +10,7 @@ Page({
     },
 
     onLoad: function() {
-        wxbarcode.barcode('barcode', '1234567890123456789', 680, 200);
+        // wxbarcode.barcode('barcode', '1234567890123456789', 680, 200);
         wxbarcode.qrcode('qrcode', '1234567890123456789', 420, 420);
     }
 })
