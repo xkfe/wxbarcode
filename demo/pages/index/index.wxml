@@ -5,10 +5,14 @@
     </view>
     <view class="barcode">
       <view class="barnum">{{code}}</view>
-      <canvas canvas-id="barcode" />
+      <!-- <canvas canvas-id="barcode" /> -->
     </view>
     <view class="qrcode">
-      <canvas canvas-id="qrcode" />
+      <!-- <canvas canvas-id="qrcode" /> -->
+       <!-- <image src="{{qrcodeImg}}" /> -->
     </view>
+    <canvas type="2d" id="qrcode" style="width: 300px; height: 300px;"/>
+    <image src="{{qrcodeImg}}" mode="aspectFill" />
+
   </view>
 </view>

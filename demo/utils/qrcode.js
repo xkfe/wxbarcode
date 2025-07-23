@@ -1,3 +1,5 @@
+const dpr = wx.getWindowInfo().pixelRatio;
+
 const adelta = [
     0, 11, 15, 19, 23, 27, 31, // force 1 pat
     16, 18, 20, 22, 24, 26, 28, 20, 22, 24, 24, 26, 28, 28, 22, 24, 24,
@@ -736,7 +738,7 @@ let api = {
         size = roundedSize;
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.setFillStyle('#000000');
+        ctx.fillStyle = '#000000';
 
         for (let i = 0; i < width; i++) {
             for (let j = 0; j < width; j++) {
@@ -745,9 +747,23 @@ let api = {
                 }
             }
         }
+
         return new Promise((resolve, reject) => {
-            resolve();
-            ctx.draw();
+            wx.canvasToTempFilePath({
+                x: 0,
+                y: 0,
+                width: canvas.width,
+                height: canvas.height,
+                destWidth: canvas.width * dpr,
+                destHeight: canvas.height * dpr,
+                canvas: canvas.instance,
+                success: function (res) {
+                    resolve(res.tempFilePath)
+                },
+                fail: function(err) {
+                    reject(err);
+                },
+            })
         })
     }
 }
@@ -761,12 +777,31 @@ const convertLength = length => Math.round(wx.getSystemInfoSync().windowWidth * 
  * @param {*} code 二维码内容
  * @param {*} width 二维码宽度
  * @param {*} height 二维码高度
+ * @returns 二维码图片路径
  */
-async function qrcode(id, code, width, height) {
-    return await api.draw(code, {
-        ctx: wx.createCanvasContext(id),
-        width: convertLength(width),
-        height: convertLength(height)
+async function qrcode(id, code) {
+    const query = wx.createSelectorQuery();
+    return new Promise((resolve, reject) => {
+        try {
+            query.select('#' + id).fields({ node: true, size: true }).exec(async(res) => {
+                const canvas = res[0].node;
+                const ctx = canvas.getContext('2d');
+                const renderWidth = res[0].width;
+                const renderHeight = res[0].height;
+                canvas.width = renderWidth * dpr;
+                canvas.height = renderHeight * dpr
+                ctx.scale(dpr, dpr);
+                const tempFilePath = await api.draw(code, {
+                    ctx,
+                    instance: canvas,
+                    width: renderWidth,
+                    height: renderHeight
+                });
+                resolve(tempFilePath);
+            });
+        } catch (err) {
+            reject(err);
+        }
     });
 }
 
